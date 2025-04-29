@@ -1,0 +1,127 @@
+
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <title>Quiz – Funções Vitais – Prof. Márcio</title>
+  <style>
+    body { font-family: Arial, sans-serif; margin: 20px; background: #fff; color: #000; }
+    .question-box { background: #f0f4c3; padding: 20px; border-radius: 10px; margin-bottom: 20px; }
+    .options button {
+      display: block; width: 100%; margin: 8px 0; padding: 12px;
+      font-size: 16px; border-radius: 6px; border: none;
+      background-color: #e1f5fe; cursor: pointer;
+      transition: background-color 0.3s ease, transform 0.2s ease;
+    }
+    .options button:hover { background-color: #b3e5fc; transform: scale(1.02); }
+    .feedback { margin-top: 15px; padding: 12px; border-radius: 8px; font-weight: bold; }
+    .correct { background: #c8e6c9; color: green; }
+    .incorrect { background: #ffcdd2; color: red; }
+    .navigation { text-align: center; margin-top: 20px; }
+    .navigation button {
+      padding: 10px 20px; margin: 5px;
+      border: none; border-radius: 6px;
+      background: #d1c4e9; cursor: pointer;
+    }
+    .navigation button:hover { background: #b39ddb; }
+    .result-box { margin-top: 40px; font-size: 18px; text-align: center; }
+    footer { font-size: 12px; text-align: center; margin-top: 50px; border-top: 1px solid #ccc; padding-top: 10px; }
+  </style>
+</head>
+<body>
+
+<h2>Quiz – Casos Clínicos de Funções Vitais</h2>
+<p><strong>Professor Márcio Marques de Oliveira</strong> – <a href="https://instagram.com/profmarciomarx" target="_blank">@profmarciomarx</a></p>
+
+<div id="quiz">
+  <div class="question-box" id="questionBox"></div>
+  <div class="options" id="optionsBox"></div>
+  <div class="feedback" id="feedbackBox"></div>
+  <div class="navigation">
+    <button onclick="nextQuestion()" id="nextBtn" disabled>Próximo</button>
+  </div>
+</div>
+
+<div class="result-box" id="resultBox" style="display:none;"></div>
+
+<footer>
+  Aviso Legal: Esta atividade tem caráter exclusivamente didático e educativo. Casos fictícios para fins de treinamento acadêmico. Direitos reservados – Professor Márcio Marques de Oliveira – @profmarciomarx.
+</footer>
+
+<script>
+const questions = [
+  { title: "Ferida de Difícil Cicatrização", question: "Paciente idoso apresenta ferida difícil de cicatrização...", options: ["Troca gasosa", "Disfunção linfática", "Microcirculação", "Muco", "Bronquíolos"], answer: 2, explanation: "Problema na microcirculação impede nutrição adequada dos tecidos." },
+  { title: "Linfedema Pós-Mastectomia", question: "Paciente pós-mastectomia apresenta inchaço...", options: ["Atelectasia", "Linfedema", "Pneumonia", "Edema cardíaco", "Isquemia"], answer: 1, explanation: "Linfedema ocorre por obstrução da drenagem linfática." },
+  { title: "Crise Asmática", question: "Paciente asmático com dispneia intensa...", options: ["Complacência aumentada", "Broncoconstrição", "Vasodilatação", "Edema", "Pressão osmótica"], answer: 1, explanation: "A crise asmática provoca broncoconstrição severa." },
+  { title: "Insuficiência Cardíaca e Edema Pulmonar", question: "Paciente com IC apresenta ortopneia...", options: ["Redução pressão", "Aumento venoso pulmonar", "Disfunção linfática", "Espessamento alveolar", "Diminuição osmótica"], answer: 1, explanation: "A IC eleva a pressão venosa, levando a edema pulmonar." },
+  { title: "Infecção com Linfonodos Ativos", question: "Paciente com infecção de pele extensa...", options: ["Plaquetas", "Hematose", "Filtragem infecciosa", "Surfante", "Espaço morto"], answer: 2, explanation: "Linfonodos filtram patógenos durante infecções." },
+  { title: "Embolia Pulmonar", question: "Paciente com embolia apresenta saturação baixa...", options: ["Troca gasosa", "Transporte linfático", "Muco nasal", "Drenagem mediastinal", "Histamina"], answer: 0, explanation: "Obstrução vascular prejudica a troca gasosa." },
+  { title: "Derrame Pleural", question: "Paciente com derrame após infecção respiratória...", options: ["Filtração capilar aumentada", "Obstrução linfática", "Hipovolemia", "Broncoconstrição", "Capilares hipertrofiados"], answer: 0, explanation: "Inflamação aumenta a permeabilidade capilar." },
+  { title: "Prematuro com Deficiência de Surfactante", question: "Recém-nascido prematuro com insuficiência respiratória...", options: ["Complacência aumentada", "Tensão reduzida", "Colapso alveolar", "Vasoconstrição sistêmica", "Drenagem linfática"], answer: 2, explanation: "Deficiência de surfactante causa colapso dos alvéolos." },
+  { title: "Linfadenopatia em Oncológico", question: "Paciente oncológico apresenta linfadenopatia...", options: ["Edema pulmonar", "Filtração linfática", "Atelectasia", "Hipersecreção brônquica", "Vasoconstrição alveolar"], answer: 1, explanation: "A linfadenopatia ocorre por infiltração tumoral nos linfonodos." },
+  { title: "DPOC em Tabagista", question: "Tabagista crônico com tosse produtiva...", options: ["Bronquite crônica", "Asma intermitente", "Linfedema pulmonar", "Tromboembolismo", "Alveolite"], answer: 0, explanation: "Tabagismo causa bronquite crônica com hipersecreção de muco." },
+  { title: "Pneumotórax em Politraumatizado", question: "Paciente politraumatizado com pneumotórax...", options: ["Hematose", "Drenagem linfática", "Reabsorção pleural", "Filtração capilar", "Vasodilatação"], answer: 0, explanation: "O pneumotórax compromete a troca gasosa alveolar." },
+  { title: "Úlcera Isquêmica em Diabético", question: "Paciente diabético apresenta necrose em membro inferior...", options: ["Hipertrofia linfática", "Microcirculação insuficiente", "Hiperatividade brônquica", "Complacência", "Vasodilatação"], answer: 1, explanation: "A microangiopatia diabética compromete a cicatrização." },
+  { title: "Pneumonia Viral em Imunossuprimido", question: "Imunossuprimido com pneumonia viral grave...", options: ["Disseminação viral por linfa", "Filtro de partículas", "Filtração de CO2", "Absorção de lipídios", "Surfante eliminado"], answer: 0, explanation: "A linfa pode ser via de disseminação para vírus." },
+  { title: "Linfedema Crônico", question: "Paciente com linfedema crônico em membros...", options: ["Pressão capilar aumentada", "Atrofia pulmonar", "Hipertrofia vias aéreas", "Hematose reduzida", "Formação de linfangite"], answer: 4, explanation: "Linfedema crônico favorece infecções linfáticas." },
+  { title: "Atelectasia em Acamado", question: "Paciente acamado desenvolve atelectasia...", options: ["Aumento de linfa", "Obstrução vias pequenas", "Hiperdrenagem", "Vasoconstrição", "Surfante excessivo"], answer: 1, explanation: "A falta de mobilização promove atelectasia." },
+  { title: "O Grande Desafio – Paciente Multissistêmico", question: "José A. 67 anos: DPOC, IC congestiva e linfedema...", options: ["Pressão osmótica reduzida", "Resistência via aérea elevada", "Broncodilatação compensatória", "Linfonodomegalia", "Surfante aumentado"], answer: 1, explanation: "DPOC, insuficiência cardíaca e linfedema coexistem prejudicando a função sistêmica." }
+];
+
+let current = 0;
+let score = 0;
+let answered = false;
+
+function loadQuestion() {
+  const q = questions[current];
+  document.getElementById("questionBox").innerHTML = `<strong>${q.title}</strong><br><br>${q.question}`;
+  document.getElementById("optionsBox").innerHTML = q.options.map((opt, i) => `<button onclick="selectAnswer(${i})">${opt}</button>`).join('');
+  document.getElementById("feedbackBox").innerHTML = "";
+  document.getElementById("nextBtn").disabled = true;
+  answered = false;
+}
+
+function selectAnswer(index) {
+  if (answered) return;
+  answered = true;
+  const q = questions[current];
+  const fb = document.getElementById("feedbackBox");
+  if (index === q.answer) {
+    score++;
+    fb.innerHTML = `<div class="feedback correct">✅ Correto! ${q.explanation}</div>`;
+  } else {
+    fb.innerHTML = `<div class="feedback incorrect">❌ Incorreto. ${q.explanation}</div>`;
+  }
+  document.getElementById("nextBtn").disabled = false;
+}
+
+function nextQuestion() {
+  current++;
+  if (current < questions.length) {
+    loadQuestion();
+  } else {
+    showResult();
+  }
+}
+
+function showResult() {
+  document.getElementById("quiz").style.display = "none";
+  const percent = Math.round((score / questions.length) * 100);
+  let msg = "";
+  if (percent === 100) {
+    msg = "🌟 Parabéns! Resultado excelente! O Professor Márcio pode até chorar de emoção!";
+  } else if (percent >= 61) {
+    msg = "✔ Muito bom! Mostre pro Professor Márcio e ouça aquele 'tá indo bem, mas ainda dá pra voar!'";
+  } else if (percent >= 40) {
+    msg = "⚠ Atenção! Estude mais! O Professor Márcio vai comentar com carinho.";
+  } else {
+    msg = "🔁 Vixeeee... nem mostre isso ao Professor Márcio! Refaça e surpreenda!";
+  }
+  document.getElementById("resultBox").innerHTML = `Você acertou ${score} de ${questions.length} (${percent}%).<br>${msg}`;
+  document.getElementById("resultBox").style.display = "block";
+}
+
+window.onload = loadQuestion;
+</script>
+</body>
+</html>
